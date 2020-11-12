@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"task/common"
 	pb "task/proto/task"
 	"task/repository"
 	"time"
@@ -10,14 +11,14 @@ import (
 	"github.com/micro/go-micro/v2"
 )
 
+// 模拟client调用task-srv服务
 func main() {
 	// 在日志中打印文件路径，便于调试代码
 	log.SetFlags(log.Llongfile)
-
 	// 客户端也注册为服务
-	server := micro.NewService(micro.Name("go.micro.client.task"))
+	server := micro.NewService(micro.Name(common.TaskClientName))
 	server.Init()
-	taskService := pb.NewTaskService("go.micro.service.task", server.Client())
+	taskService := pb.NewTaskService(common.TaskServiceName, server.Client())
 
 	// 调用服务生成三条任务
 	now := time.Now()
@@ -44,25 +45,6 @@ func main() {
 		log.Fatal("finished", row.Id, err)
 	}
 
-	// 修改查询到的第二条数据,延长截至日期
-	row = page.Rows[1]
-	if _, err = taskService.Modify(context.Background(), &pb.Task{
-		Id:        row.Id,
-		Body:      row.Body,
-		StartTime: row.StartTime,
-		EndTime:   now.Add(time.Hour * 72).Unix(),
-	}); err != nil {
-		log.Fatal("modify", row.Id, err)
-	}
-
-	// 删除第三条记录
-	row = page.Rows[2]
-	if _, err = taskService.Delete(context.Background(), &pb.Task{
-		Id: row.Id,
-	}); err != nil {
-		log.Fatal("delete", row.Id, err)
-	}
-
 	// 再次分页查询，校验修改结果
 	page, err = taskService.Search(context.Background(), &pb.SearchRequest{})
 	if err != nil {
@@ -70,9 +52,10 @@ func main() {
 	}
 	log.Println(page)
 }
-
 func insertTask(taskService pb.TaskService, body string, start, end int64) {
 	_, err := taskService.Create(context.Background(), &pb.Task{
+		// 这里先随便输入一个userId
+		UserId:    "10000",
 		Body:      body,
 		StartTime: start,
 		EndTime:   end,

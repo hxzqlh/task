@@ -2,22 +2,19 @@ package main
 
 import (
 	"context"
+	"log"
+	"task/archievement/repository"
+	"task/archievement/subscriber"
 	"task/common"
-	"task/handler"
-	"task/repository"
-	"task/subscriber"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
-
-	task "task/proto/task"
+	"github.com/pkg/errors"
 )
 
 const MONGO_URI = "mongodb://admin:123456@127.0.0.1:27017"
 
+// task-srv服务
 func main() {
 	conn, err := common.ConnectMongo(MONGO_URI, time.Second)
 	if err != nil {
@@ -32,7 +29,7 @@ func main() {
 
 	// New Service
 	service := micro.NewService(
-		micro.Name(common.TaskServiceName),
+		micro.Name("go.micro.service.achievement"),
 		micro.Version("latest"),
 	)
 
@@ -40,18 +37,15 @@ func main() {
 	service.Init()
 
 	// Register Handler
-	taskHandler := &handler.TaskHandler{
-		TaskRepository: &repository.TaskRepositoryImpl{
+	handler := &subscriber.AchievementSub{
+		Repo: &repository.AchievementRepoImpl{
 			Conn: conn,
 		},
-		TaskFinishedPubEvent: micro.NewEvent(common.TaskTopicName, service.Client()),
 	}
-	if err := task.RegisterTaskServiceHandler(service.Server(), taskHandler); err != nil {
-		log.Fatal(errors.WithMessage(err, "register server"))
+	// 这里的topic注意与task注册的要一致
+	if err := micro.RegisterSubscriber(common.TaskTopicName, service.Server(), handler); err != nil {
+		log.Fatal(errors.WithMessage(err, "subscribe"))
 	}
-
-	// Register Struct as Subscriber
-	micro.RegisterSubscriber(common.TaskTopicName, service.Server(), new(subscriber.Task))
 
 	// Run service
 	if err := service.Run(); err != nil {

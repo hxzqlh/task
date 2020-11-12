@@ -4,20 +4,21 @@ import (
 	"context"
 	"task/repository"
 
-	"github.com/pkg/errors"
-
+	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/pkg/errors"
 
 	pb "task/proto/task"
 )
 
 type TaskHandler struct {
-	TaskRepository repository.TaskRepository
+	TaskRepository       repository.TaskRepository
+	TaskFinishedPubEvent micro.Event
 }
 
 func (t *TaskHandler) Create(ctx context.Context, req *pb.Task, resp *pb.EditResponse) error {
 	log.Info("Received TaskHandler.Create request")
-	if req.Body == "" || req.StartTime <= 0 || req.EndTime <= 0 {
+	if req.Body == "" || req.StartTime <= 0 || req.EndTime <= 0 || req.UserId == "" {
 		return errors.New("bad param")
 	}
 	if err := t.TaskRepository.InsertOne(ctx, req); err != nil {
@@ -60,6 +61,16 @@ func (t *TaskHandler) Finished(ctx context.Context, req *pb.Task, resp *pb.EditR
 		return err
 	}
 	resp.Msg = "success"
+
+	// 发送task完成消息
+	// 由于以下都是主业务之外的增强功能，出现异常只记录日志，不影响主业务返回
+	if task, err := t.TaskRepository.FindById(ctx, req.Id); err != nil {
+		log.Errorf("can't find finished task: %s", err.Error())
+	} else {
+		if err = t.TaskFinishedPubEvent.Publish(ctx, task); err != nil {
+			log.Errorf("can't send task finished message: %s", err.Error())
+		}
+	}
 	return nil
 }
 

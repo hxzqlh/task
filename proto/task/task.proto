@@ -36,7 +36,6 @@ message Pong {
 	int64 stroke = 1;
 }
 
-//下面是消息体message的定义，可以暂时理解为go中的struct，其中的1，2，3...是每个变量唯一的编码
 message Task {
 	//每条任务的ID，本项目中对应mongodb记录的"_id"字段
 	//@inject_tag: bson:"_id"
@@ -62,6 +61,9 @@ message Task {
 	//任务修改时间
 	//@inject_tag: bson:"updateTime"
 	int64 updateTime = 8;
+	//用户ID
+	//@inject_tag: bson:"userId"
+	string userId=9;
 }
 
 //增删改接口返回参数
@@ -69,6 +71,7 @@ message EditResponse {
 	//操作返回的消息
 	string msg = 1;
 }
+
 //查询接口的参数
 message SearchRequest{
 	//分页查询页码，从第一页开始
