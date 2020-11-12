@@ -254,34 +254,35 @@ func (m *Pong) GetStroke() int64 {
 	return 0
 }
 
+//下面是消息体message的定义，可以暂时理解为go中的struct，其中的1，2，3...是每个变量唯一的编码
 type Task struct {
 	//每条任务的ID，本项目中对应mongodb记录的"_id"字段
-	//@inject_tag: bson:"_id"
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" bson:"_id"`
+	//@inject_tag: bson:"_id" form:"id"
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" bson:"_id" form:"id"`
 	//任务主体文字
-	//@inject_tag: bson:"body"
-	Body string `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty" bson:"body"`
+	//@inject_tag: bson:"body" form:"body"
+	Body string `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty" bson:"body" form:"body"`
 	//用户设定的任务开始时间戳
-	//@inject_tag: bson:"startTime"
-	StartTime int64 `protobuf:"varint,3,opt,name=startTime,proto3" json:"startTime,omitempty" bson:"startTime"`
+	//@inject_tag: bson:"startTime" form:"startTime"
+	StartTime int64 `protobuf:"varint,3,opt,name=startTime,proto3" json:"startTime,omitempty" bson:"startTime" form:"startTime"`
 	//用户设定的任务截止时间戳
-	//@inject_tag: bson:"endTime"
-	EndTime int64 `protobuf:"varint,4,opt,name=endTime,proto3" json:"endTime,omitempty" bson:"endTime"`
+	//@inject_tag: bson:"endTime" form:"endTime"
+	EndTime int64 `protobuf:"varint,4,opt,name=endTime,proto3" json:"endTime,omitempty" bson:"endTime" form:"endTime"`
 	//任务是否已完成
-	//@inject_tag: bson:"isFinished"
-	IsFinished int32 `protobuf:"varint,5,opt,name=isFinished,proto3" json:"isFinished,omitempty" bson:"isFinished"`
+	//@inject_tag: bson:"isFinished" form:"isFinished"
+	IsFinished int32 `protobuf:"varint,5,opt,name=isFinished,proto3" json:"isFinished,omitempty" bson:"isFinished" form:"isFinished"`
 	//用户实际完成时间戳
-	//@inject_tag: bson:"finishTime"
-	FinishTime int64 `protobuf:"varint,6,opt,name=finishTime,proto3" json:"finishTime,omitempty" bson:"finishTime"`
+	//@inject_tag: bson:"finishTime" form:"finishTime"
+	FinishTime int64 `protobuf:"varint,6,opt,name=finishTime,proto3" json:"finishTime,omitempty" bson:"finishTime" form:"finishTime"`
 	//任务创建时间
-	//@inject_tag: bson:"createTime"
-	CreateTime int64 `protobuf:"varint,7,opt,name=createTime,proto3" json:"createTime,omitempty" bson:"createTime"`
+	//@inject_tag: bson:"createTime" form:"createTime"
+	CreateTime int64 `protobuf:"varint,7,opt,name=createTime,proto3" json:"createTime,omitempty" bson:"createTime" form:"createTime"`
 	//任务修改时间
-	//@inject_tag: bson:"updateTime"
-	UpdateTime int64 `protobuf:"varint,8,opt,name=updateTime,proto3" json:"updateTime,omitempty" bson:"updateTime"`
+	//@inject_tag: bson:"updateTime" form:"updateTime"
+	UpdateTime int64 `protobuf:"varint,8,opt,name=updateTime,proto3" json:"updateTime,omitempty" bson:"updateTime" form:"updateTime"`
 	//用户ID
-	//@inject_tag: bson:"userId"
-	UserId               string   `protobuf:"bytes,9,opt,name=userId,proto3" json:"userId,omitempty" bson:"userId"`
+	//@inject_tag: bson:"userId" form:"userId"
+	UserId               string   `protobuf:"bytes,9,opt,name=userId,proto3" json:"userId,omitempty" bson:"userId" form:"userId"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -419,15 +420,20 @@ func (m *EditResponse) GetMsg() string {
 //查询接口的参数
 type SearchRequest struct {
 	//分页查询页码，从第一页开始
-	PageSize int64 `protobuf:"varint,1,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	//@inject_tag: form:"pageSize"
+	PageSize int64 `protobuf:"varint,1,opt,name=pageSize,proto3" json:"pageSize,omitempty" form:"pageSize"`
 	//分页查询每页数量，默认20
-	PageCode int64 `protobuf:"varint,2,opt,name=pageCode,proto3" json:"pageCode,omitempty"`
+	//@inject_tag: form:"pageCode"
+	PageCode int64 `protobuf:"varint,2,opt,name=pageCode,proto3" json:"pageCode,omitempty" form:"pageCode"`
 	// 排序字段
-	SortBy string `protobuf:"bytes,3,opt,name=sortBy,proto3" json:"sortBy,omitempty"`
+	//@inject_tag: form:"sortBy"
+	SortBy string `protobuf:"bytes,3,opt,name=sortBy,proto3" json:"sortBy,omitempty" form:"sortBy"`
 	// 顺序 -1降序 1升序
-	Order int32 `protobuf:"varint,4,opt,name=order,proto3" json:"order,omitempty"`
+	//@inject_tag: form:"order"
+	Order int32 `protobuf:"varint,4,opt,name=order,proto3" json:"order,omitempty" form:"order"`
 	//关键字模糊查询任务body字段
-	Keyword              string   `protobuf:"bytes,5,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	//@inject_tag: form:"keyword"
+	Keyword              string   `protobuf:"bytes,5,opt,name=keyword,proto3" json:"keyword,omitempty" form:"keyword"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -495,17 +501,23 @@ func (m *SearchRequest) GetKeyword() string {
 
 type SearchResponse struct {
 	//分页查询页码，从第一页开始
-	PageSize int64 `protobuf:"varint,1,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	//@inject_tag: form:"pageSize"
+	PageSize int64 `protobuf:"varint,1,opt,name=pageSize,proto3" json:"pageSize,omitempty" form:"pageSize"`
 	//分页查询每页数量，默认20
-	PageCode int64 `protobuf:"varint,2,opt,name=pageCode,proto3" json:"pageCode,omitempty"`
+	//@inject_tag: form:"pageCode"
+	PageCode int64 `protobuf:"varint,2,opt,name=pageCode,proto3" json:"pageCode,omitempty" form:"pageCode"`
 	// 排序字段
-	SortBy string `protobuf:"bytes,3,opt,name=sortBy,proto3" json:"sortBy,omitempty"`
+	//@inject_tag: form:"sortBy"
+	SortBy string `protobuf:"bytes,3,opt,name=sortBy,proto3" json:"sortBy,omitempty" form:"sortBy"`
 	// 顺序 -1降序 1升序
-	Order int32 `protobuf:"varint,4,opt,name=order,proto3" json:"order,omitempty"`
+	//@inject_tag: form:"order"
+	Order int32 `protobuf:"varint,4,opt,name=order,proto3" json:"order,omitempty" form:"order"`
 	//数据总数
-	Total int64 `protobuf:"varint,5,opt,name=total,proto3" json:"total,omitempty"`
+	//@inject_tag: form:"total"
+	Total int64 `protobuf:"varint,5,opt,name=total,proto3" json:"total,omitempty" form:"total"`
 	//具体数据，这里repeated表示可以出现多条，类似于go中的slice
-	Rows                 []*Task  `protobuf:"bytes,6,rep,name=rows,proto3" json:"rows,omitempty"`
+	//@inject_tag: form:"rows"
+	Rows                 []*Task  `protobuf:"bytes,6,rep,name=rows,proto3" json:"rows,omitempty" form:"rows"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

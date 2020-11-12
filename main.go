@@ -4,6 +4,7 @@ import (
 	"context"
 	"task/common"
 	"task/handler"
+	task "task/proto/task"
 	"task/repository"
 	"task/subscriber"
 	"time"
@@ -12,8 +13,6 @@ import (
 
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
-
-	task "task/proto/task"
 )
 
 const MONGO_URI = "mongodb://admin:123456@127.0.0.1:27017"

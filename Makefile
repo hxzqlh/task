@@ -9,7 +9,6 @@ proto:
 
 .PHONY: build
 build: proto
-
 	go build -o task-service *.go
 
 .PHONY: test
