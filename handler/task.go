@@ -2,13 +2,18 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"task/common"
+	pb "task/proto/task"
 	"task/repository"
+	"time"
 
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
+	ot "github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
+	"github.com/opentracing/opentracing-go"
+	otlog "github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
-
-	pb "task/proto/task"
 )
 
 type TaskHandler struct {
@@ -52,11 +57,22 @@ func (t *TaskHandler) Modify(ctx context.Context, req *pb.Task, resp *pb.EditRes
 	return nil
 }
 
-func (t *TaskHandler) Finished(ctx context.Context, req *pb.Task, resp *pb.EditResponse) error {
+func (t *TaskHandler) Finished(c context.Context, req *pb.Task, resp *pb.EditResponse) error {
 	log.Infof("Received TaskHandler.Finished request: %v", req.Id)
 	if req.Id == "" || req.IsFinished != repository.UnFinished && req.IsFinished != repository.Finished {
 		return errors.New("bad param")
 	}
+
+	ctx, span, err := ot.StartSpanFromContext(c, opentracing.GlobalTracer(), common.TaskServiceName+".FinishedHandler")
+	if err != nil {
+		fmt.Println("start span err", err)
+	}
+	defer span.Finish()
+
+	span.LogFields(
+		otlog.String("taskId", req.Id),
+	)
+
 	if err := t.TaskRepository.Finished(ctx, req); err != nil {
 		return err
 	}
@@ -76,6 +92,9 @@ func (t *TaskHandler) Finished(ctx context.Context, req *pb.Task, resp *pb.EditR
 
 func (t *TaskHandler) Search(ctx context.Context, req *pb.SearchRequest, resp *pb.SearchResponse) error {
 	log.Info("Received TaskHandler.Search request")
+
+	time.Sleep(3 * time.Second)
+
 	count, err := t.TaskRepository.Count(ctx, req.Keyword)
 	if err != nil {
 		return errors.WithMessage(err, "count row number")

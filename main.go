@@ -15,6 +15,8 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
+	ot "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 )
 
@@ -23,12 +25,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer func() {
 		if err = conn.Disconnect(context.Background()); err != nil {
 			panic(err)
 		}
 	}()
+
+	jaegerTracer, closer, err := common.NewJaegerTracer(common.TaskServiceName, common.JaegerAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closer.Close()
+	ot.SetGlobalTracer(jaegerTracer)
 
 	// New Service
 	service := micro.NewService(
@@ -36,6 +44,7 @@ func main() {
 		micro.Version("latest"),
 		micro.Registry(etcd.NewRegistry(registry.Addrs(common.EtcdAddr))),
 		micro.Broker(nats.NewBroker(broker.Addrs(common.NatsAddr))),
+		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
 	)
 
 	// Initialise service

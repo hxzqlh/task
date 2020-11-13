@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"strings"
 	pb "task/proto/task"
 	"time"
@@ -93,8 +92,6 @@ func (repo *TaskRepositoryImpl) Finished(ctx context.Context, task *pb.Task) err
 	if task.IsFinished == Finished {
 		update["finishTime"] = now
 	}
-	log.Print(task)
-	log.Println(update)
 	_, err = repo.collection().UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": update})
 	return err
 }
