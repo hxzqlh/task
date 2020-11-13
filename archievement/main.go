@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/broker"
+	"github.com/micro/go-micro/v2/broker/nats"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/pkg/errors"
@@ -34,6 +36,7 @@ func main() {
 		micro.Name("go.micro.service.achievement"),
 		micro.Version("latest"),
 		micro.Registry(etcd.NewRegistry(registry.Addrs(common.EtcdAddr))),
+		micro.Broker(nats.NewBroker(broker.Addrs(common.NatsAddr))),
 	)
 
 	// Initialise service

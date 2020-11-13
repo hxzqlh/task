@@ -12,6 +12,7 @@ import (
 const (
 	MongodbUri = "mongodb://admin:123456@127.0.0.1:27017"
 	EtcdAddr   = "127.0.0.1:2379"
+	NatsAddr   = "nats://127.0.0.1:4222"
 )
 
 const (
