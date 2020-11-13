@@ -10,10 +10,14 @@ import (
 )
 
 const (
+	MongodbUri = "mongodb://admin:123456@127.0.0.1:27017"
+	EtcdAddr   = "127.0.0.1:2379"
+)
+
+const (
 	TaskServiceName = "go.micro.service.task"
 	TaskClientName  = "go.micro.client.task"
 	TaskTopicName   = "go.micro.topic.task"
-	//TaskFinishEvent = TaskTopicName + ".finished"
 )
 
 func ConnectMongo(uri string, timeout time.Duration) (*mongo.Client, error) {

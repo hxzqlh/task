@@ -9,14 +9,21 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 )
 
 // 模拟client调用task-srv服务
 func main() {
 	// 在日志中打印文件路径，便于调试代码
 	log.SetFlags(log.Llongfile)
+
 	// 客户端也注册为服务
-	server := micro.NewService(micro.Name(common.TaskClientName))
+	server := micro.NewService(
+		micro.Name(common.TaskClientName),
+		micro.Registry(etcd.NewRegistry(registry.Addrs(common.EtcdAddr))),
+	)
+
 	server.Init()
 	taskService := pb.NewTaskService(common.TaskServiceName, server.Client())
 

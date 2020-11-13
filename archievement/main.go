@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/pkg/errors"
 )
 
@@ -31,6 +33,7 @@ func main() {
 	service := micro.NewService(
 		micro.Name("go.micro.service.achievement"),
 		micro.Version("latest"),
+		micro.Registry(etcd.NewRegistry(registry.Addrs(common.EtcdAddr))),
 	)
 
 	// Initialise service

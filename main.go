@@ -9,16 +9,15 @@ import (
 	"task/subscriber"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/pkg/errors"
 )
 
-const MONGO_URI = "mongodb://admin:123456@127.0.0.1:27017"
-
 func main() {
-	conn, err := common.ConnectMongo(MONGO_URI, time.Second)
+	conn, err := common.ConnectMongo(common.MongodbUri, time.Second)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,6 +32,7 @@ func main() {
 	service := micro.NewService(
 		micro.Name(common.TaskServiceName),
 		micro.Version("latest"),
+		micro.Registry(etcd.NewRegistry(registry.Addrs(common.EtcdAddr))),
 	)
 
 	// Initialise service
