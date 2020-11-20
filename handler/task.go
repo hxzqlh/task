@@ -63,7 +63,7 @@ func (t *TaskHandler) Finished(c context.Context, req *pb.Task, resp *pb.EditRes
 		return errors.New("bad param")
 	}
 
-	ctx, span, err := ot.StartSpanFromContext(c, opentracing.GlobalTracer(), common.TaskServiceName+".FinishedHandler")
+	ctx, span, err := ot.StartSpanFromContext(c, opentracing.GlobalTracer(), common.TaskServiceName+".TaskHandler.Finished")
 	if err != nil {
 		fmt.Println("start span err", err)
 	}
@@ -90,8 +90,14 @@ func (t *TaskHandler) Finished(c context.Context, req *pb.Task, resp *pb.EditRes
 	return nil
 }
 
-func (t *TaskHandler) Search(ctx context.Context, req *pb.SearchRequest, resp *pb.SearchResponse) error {
+func (t *TaskHandler) Search(c context.Context, req *pb.SearchRequest, resp *pb.SearchResponse) error {
 	log.Info("Received TaskHandler.Search request")
+
+	ctx, span, err := ot.StartSpanFromContext(c, opentracing.GlobalTracer(), common.TaskServiceName+".TaskHandler.Search")
+	if err != nil {
+		fmt.Println("start span err", err)
+	}
+	defer span.Finish()
 
 	time.Sleep(3 * time.Second)
 

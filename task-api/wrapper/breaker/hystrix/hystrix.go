@@ -18,10 +18,10 @@ func (c *clientWrapper) Call(ctx context.Context, req client.Request, rsp interf
 	name := req.Service() + "." + req.Endpoint()
 
 	config := hystrix.CommandConfig{
-		Timeout:               2000,
+		Timeout:               3000, //ms
 		MaxConcurrentRequests: 50,
-		SleepWindow:           3000,
-		ErrorPercentThreshold: 60,
+		SleepWindow:           3000, //ms
+		ErrorPercentThreshold: 60,   //60%
 	}
 	hystrix.ConfigureCommand(name, config)
 

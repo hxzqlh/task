@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"context"
 	"task/common"
 	pb "task/proto/task"
 
@@ -10,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/client"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2/web"
@@ -32,7 +34,17 @@ func main() {
 		micro.Registry(etcdRegister),
 		micro.WrapClient(hystrix.NewClientWrapper(), opentracing.NewClientWrapper(jaegerTracer)),
 	)
-	taskService := pb.NewTaskService(common.TaskServiceName, app.Client())
+
+	cli := app.Client()
+	cli.Init(
+		client.Retries(3),
+		client.Retry(func(ctx context.Context, req client.Request, retryCount int, err error) (bool, error) {
+			log.Errorf("api retry call: %s.%s-%v", req.Service(), req.Method(), retryCount)
+			return true, nil
+		}),
+	)
+
+	taskService := pb.NewTaskService(common.TaskServiceName, cli)
 
 	webHandler := gin.Default()
 	// 这个服务才是真正运行的服务
